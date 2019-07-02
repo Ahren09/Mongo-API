@@ -84,7 +84,12 @@ func Upsert(mongoUrl string, dbName string, collectionName string, name string) 
 func Find(mongoUrl string, dbName string, collectionName string, name string) []User{
     _, collection := connect(mongoUrl, dbName, collectionName)
     var users []User
-    collection.Find(bson.M{"name": name}).All(&users)
+    if name != ""{
+        collection.Find(bson.M{"name": name}).All(&users)
+    } else {
+        collection.Find(nil).All(&users)
+    }
+    fmt.Println("Number of users:", len(users))
     // Print Id's of all returned users
     for _,value := range users {
         fmt.Println(value.Id)
@@ -92,10 +97,10 @@ func Find(mongoUrl string, dbName string, collectionName string, name string) []
     return users
 }
 
-func Update (mongoUrl string, dbName string, collectionName string, name string, newUser User) {
+func Update (mongoUrl string, dbName string, collectionName string, newUser *User) {
     _, collection := connect(mongoUrl, dbName, collectionName)
     // Create object
-    err := collection.Update(bson.M{"name":name}, bson.M{"$set": newUser})
+    err := collection.Update(bson.M{"name":newUser.Id}, bson.M{"$set": *newUser})
     if err == nil {
         fmt.Println("Successful Update!")
     } else {
@@ -104,13 +109,11 @@ func Update (mongoUrl string, dbName string, collectionName string, name string,
 
 }
 
-func Delete(mongoUrl string, dbName string, collectionName string, interest map[string]string) {
+func Delete(mongoUrl string, dbName string, collectionName string, id bson.ObjectId) {
     _, collection := connect(mongoUrl, dbName, collectionName)
-    fmt.Println(interest)
+    //fmt.Println(interest)
     _, err := collection.RemoveAll(bson.M{
-        "name" : interest["name"],
-        "owner" : interest["owner"],
-        "createdby" : interest["createdby"],
+        "_id" : id,
     })
     if err == nil {
         fmt.Println("Successful Deletion!")
@@ -139,20 +142,33 @@ func Count(mongoUrl string, dbName string, collectionName string, name string) {
     }
 }
 
+func ListCollection(mongoUrl string, dbName string, collectionName string) {
+    users := Find(mongoUrl, dbName, collectionName, "")
+    for _, u := range users{
+        fmt.Println("[User]")
+        fmt.Println("Id: ", u.Id)
+        fmt.Println("Name: ", u.Name)
+        fmt.Println("Owner: ", u.Owner)
+        fmt.Println("Creator: ", u.Creator)
+    }
+}
+
 
 func TestInsert() {
+    fmt.Println("======= Test Insert ======")
     user1 := createUser("Cassie", "123@yahoo.com", "N/A")
     Insert(mongoUrl, "newBlog", "newMgotest", user1)
     Find(mongoUrl, "newBlog", "newMgotest", "Cassie")
+    fmt.Println("========= END =========")
 }
 
 func TestDelete() {
-    mp := make(map[string]string)
-    mp["name"] = "Cassie"
-    mp["owner"] = "123@yahoo.com"
-    mp["createdby"] = "N/A"
-    Delete(mongoUrl, "newBlog", "newMgotest", mp)
-
+    fmt.Println("======= Test Delete ======")
+    users := Find(mongoUrl, "newBlog", "newMgotest", "Cassie")
+    for _, value := range users{
+        Delete(mongoUrl, "newBlog", "newMgotest", value.Id)
+    }
+    fmt.Println("========= END =========")
 
 
 }
@@ -161,7 +177,10 @@ func TestDelete() {
 
 func main() {
     TestInsert()
+    ListCollection(mongoUrl, "newBlog", "newMgotest")
     TestDelete()
+    ListCollection(mongoUrl, "newBlog", "newMgotest")
+    //Find(mongoUrl, "newBlog", "newMgotest", "Ahren")
     // Count(mongoUrl, "newBlog", "newMgotest", "Ahren")
     // user1 := createUser("Bob", "newBlog", "newMgotest")
     // Update(mongoUrl, "newBlog", "newMgotest", "Ahren", *user)
