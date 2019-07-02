@@ -76,9 +76,6 @@ func Insert(mongoUrl string, dbName string, collectionName string, user *User) {
     }
 }
 
-func Upsert(mongoUrl string, dbName string, collectionName string, name string) {
-
-}
 
 
 func Find(mongoUrl string, dbName string, collectionName string, name string) []User{
@@ -106,7 +103,18 @@ func Update (mongoUrl string, dbName string, collectionName string, newUser *Use
     } else {
         fmt.Println(err.Error())
     }
+}
 
+func Upsert (mongoUrl string, dbName string, collectionName string, newUser *User) {
+    _, collection := connect(mongoUrl, dbName, collectionName)
+    // Create object
+    fmt.Println("New User Id: ", newUser.Id)
+    _, err := collection.UpsertId(newUser.Id, bson.M{"$set": *newUser})
+    if err == nil {
+        fmt.Println("Successful Upsert!")
+    } else {
+        fmt.Println(err.Error())
+    }
 }
 
 func Delete(mongoUrl string, dbName string, collectionName string, id bson.ObjectId) {
@@ -143,6 +151,7 @@ func Count(mongoUrl string, dbName string, collectionName string, name string) {
 }
 
 func ListCollection(mongoUrl string, dbName string, collectionName string) {
+    fmt.Println("++++++++++ List Collection ++++++++++++")
     users := Find(mongoUrl, dbName, collectionName, "")
     for _, u := range users{
         fmt.Println("[User]")
@@ -151,6 +160,7 @@ func ListCollection(mongoUrl string, dbName string, collectionName string) {
         fmt.Println("Owner: ", u.Owner)
         fmt.Println("Creator: ", u.Creator)
     }
+    fmt.Println("++++++++++ End ++++++++++++")
 }
 
 
@@ -173,12 +183,26 @@ func TestDelete() {
 
 }
 
+func TestUpsert() {
+    fmt.Println("======= Test Upsert ======")
+    users := Find(mongoUrl, "newBlog", "newMgotest", "Ahren")
+    for _,value := range users {
+        value.Creator = "New Creator"
+        Upsert(mongoUrl, "newBlog", "newMgotest", &value)
+    }
+
+    fmt.Println("========= END =========")
+}
+
 
 
 func main() {
     TestInsert()
     ListCollection(mongoUrl, "newBlog", "newMgotest")
     TestDelete()
+    ListCollection(mongoUrl, "newBlog", "newMgotest")
+
+    TestUpsert()
     ListCollection(mongoUrl, "newBlog", "newMgotest")
     //Find(mongoUrl, "newBlog", "newMgotest", "Ahren")
     // Count(mongoUrl, "newBlog", "newMgotest", "Ahren")
