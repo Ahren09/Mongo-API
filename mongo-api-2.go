@@ -43,12 +43,20 @@ func createUser(name string, owner string, createdby string) (*User) {
 }
 
 func createInterest(name string, owner string, createdby string) (string) {
-    if(name == ""){
-        fmt.Println("Empty")
+    interest := ""
+    if(name != ""){
+        interest += "\"name\": \"" + name + "\", "
     }
-    return ""
-
+    if(owner != ""){
+        interest += "\"owner\": \"" + owner + "\", "
+    }
+    if(createdby != ""){
+        interest += "\"createdby\": \"" + createdby + "\", "
+    }
+    fmt.Println(interest)
+    return interest
 }
+
 
 
 // func init() {
@@ -57,12 +65,12 @@ func createInterest(name string, owner string, createdby string) (string) {
 //     collection = db.C("newMgotest")
 // }
 
-func Add(mongoUrl string, dbName string, collectionName string, user *User) {
+func Insert(mongoUrl string, dbName string, collectionName string, user *User) {
     _, collection := connect(mongoUrl, dbName, collectionName)
 
     err := collection.Insert(user)
     if err == nil {
-        fmt.Println("Inserted!")
+        fmt.Println("Successful Insertion")
     } else {
         fmt.Println(err.Error())
     }
@@ -83,16 +91,62 @@ func Find(mongoUrl string, dbName string, collectionName string, name string) []
     return users
 }
 
-// func Update {
+func Update (mongoUrl string, dbName string, collectionName string, name string, interest string) {
+    _, collection := connect(mongoUrl, dbName, collectionName)
+    err := collection.Update(bson.M{"name":"Ahren"}, bson.M{"$set": interest})
+    if err == nil {
+        fmt.Println("Successful Update!")
+    } else {
+        fmt.Println(err.Error())
+    }
 
-// }
+}
+
+func Delete(mongoUrl string, dbName string, collectionName string, interest string) {
+    _, collection := connect(mongoUrl, dbName, collectionName)
+    fmt.Println(interest)
+    _, err := collection.RemoveAll(bson.M{interest})
+    if err == nil {
+        fmt.Println("Successful Deletion!")
+    } else {
+        fmt.Println(err.Error())
+    }
+
+}
+
+func Count(mongoUrl string, dbName string, collectionName string, name string) {
+    _, collection := connect(mongoUrl, dbName, collectionName)
+    num, err := collection.Count() //bson.M{"name": "Ahren"})
+    if err == nil {
+        fmt.Println("Number of records:")
+        fmt.Println(num)
+    } else {
+        fmt.Println(err.Error())
+    }
+}
+
 
 
 
 
 func main() {
-    createInterest("Here!", "", "")
-    user := createUser("Ahren", "newBlog", "newMgotest")
-    Add(mongoUrl, "newBlog", "newMgotest", user)
-    Find(mongoUrl, "newBlog", "newMgotest", "Ahren")
+    // Count(mongoUrl, "newBlog", "newMgotest", "Ahren")
+    // user1 := createUser("Bob", "newBlog", "newMgotest")
+    // Update(mongoUrl, "newBlog", "newMgotest", "Ahren", *user)
+
+    // // Insert(mongoUrl, "newBlog", "newMgotest", user)
+    // Find(mongoUrl, "newBlog", "newMgotest", "Bob")
+    // createInterest("Here!", "", "")
+   
+
+    // Find(mongoUrl, "newBlog", "newMgotest", "Ahren")
+
+    user1 := createUser("Cassie", "123@yahoo.com", "N/A")
+    interest_1 := createInterest("Cassie", "123@yahoo.com", "N/A")
+    fmt.Println(interest_1)
+    Delete(mongoUrl, "newBlog", "newMgotest", interest_1)
+    Find(mongoUrl, "newBlog", "newMgotest", "Cassie")
+
+
+
 }
