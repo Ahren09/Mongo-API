@@ -26,9 +26,9 @@ func (user User) ToString() string {
 }
 
 func connect(mongoUrl, dbName string, collectionName string) (*mgo.Database, *mgo.Collection) {
-    session, _ = mgo.Dial(mongoUrl)
+    session, _ := mgo.Dial(mongoUrl)
     db := session.DB(dbName)
-    collection = db.C(collectionName)
+    collection := db.C(collectionName)
     return db, collection
 }
 
