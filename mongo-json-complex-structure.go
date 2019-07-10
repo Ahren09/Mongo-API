@@ -13,16 +13,16 @@ import (
 const url  = "mongodb://0.0.0.0:27017";
 
 type Body struct {
-    DB string `json:"db"`
-    Collection string `json:"collection"`
+    DB         string     `json:"db"`
+    Collection string     `json:"collection"`
     Documents []Documents `json:"documents"`
 }
 
 type Documents struct {
-    Id        string `json:"id"`
+    Id        string        `json:"id"`
     Name      string        `json:"name"`
     Owner     string        `json:"owner"`
-    Creator   string         `json:"createdby"`
+    Creator   string        `json:"createdby"`
 }
 
 const mongoUrl string = "127.0.0.1:27017"
@@ -41,24 +41,27 @@ func Insert(mongoUrl string, dbName string, collectionName string, user []byte) 
     _, collection := connect(mongoUrl, dbName, collectionName)
 
     fmt.Println("=========== Insert ============")
-    var userMap map[string] interface{}
-    _ =json.Unmarshal(user, &userMap)
-    err := collection.Insert(userMap)
-    fmt.Println("[User]")
-    fmt.Println("db: ", userMap["db"])
-    fmt.Println("collection: ", userMap["collection"])
-    //fmt.Println("Id: ", userMap["id"]) //Output <nil>
-    documents := userMap["documents"]
-    fmt.Println("Document:", documents)
-    fmt.Printf("Document Type:%T\n", documents)
+    // var userMap map[string] interface{}
+    // _ =json.Unmarshal(user, &userMap)
+    // err := collection.Insert(userMap)
+    // fmt.Println("[User]")
+    // fmt.Println("db: ", userMap["db"])
+    // fmt.Println("collection: ", userMap["collection"])
+    // //fmt.Println("Id: ", userMap["id"]) //Output <nil>
+    // documents := userMap["documents"]
+    // fmt.Println("Document:", documents)
+    // fmt.Printf("Document Type:%T\n", documents)
     
     var bodyMap Body
-    err = json.Unmarshal(user, &bodyMap)
+    err := json.Unmarshal(user, &bodyMap)
     fmt.Println("db: ", bodyMap.DB)
     fmt.Println("collection: ", bodyMap.Collection)
-    fmt.Println("Documents:", bodyMap.Documents[0])
+    documents := bodyMap.Documents[0]
+    fmt.Println("Documents:", documents)
     fmt.Println("Id:", bodyMap.Documents[0].Id)
     fmt.Println("Name:", bodyMap.Documents[0].Name)
+
+    err = collection.Insert(documents)
     
 
 
@@ -90,12 +93,10 @@ func Find(mongoUrl string, dbName string, collectionName string, name string) ma
 func ListCollection(mongoUrl string, dbName string, collectionName string) {
     fmt.Println("++++++++++ List Collection ++++++++++++")
     user := Find(mongoUrl, dbName, collectionName, "")
-    //for _, u := range users{
+    //for _, user := range users{
         fmt.Println("[User]")
-        fmt.Println("db: ", user["db"])
-        fmt.Println("collection: ", user["collection"])
-        fmt.Println("Document: ", user["documents"])
-        // fmt.Println("Creator: ", user["createdby"])
+        fmt.Println("Id: ", user["id"])
+        fmt.Println("Creator: ", user["createdby"])
     //}
     fmt.Println("++++++++++ End ++++++++++++")
 }
