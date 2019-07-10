@@ -90,6 +90,20 @@ func Find(mongoUrl string, dbName string, collectionName string, name string) ma
     return users
 }
 
+func FindByStruct(mongoUrl string, dbName string, collectionName string) []Documents {
+    _, collection := connect(mongoUrl, dbName, collectionName)
+    var users []Documents
+    collection.Find(nil).All(&users)
+    
+    fmt.Println("Number of users:", len(users))
+    
+    for _,u := range users {
+        fmt.Println(u.Id)
+        fmt.Println(u.Owner)
+    }
+    return users
+}
+
 func ListCollection(mongoUrl string, dbName string, collectionName string) {
     fmt.Println("++++++++++ List Collection ++++++++++++")
     user := Find(mongoUrl, dbName, collectionName, "")
@@ -102,10 +116,11 @@ func ListCollection(mongoUrl string, dbName string, collectionName string) {
 }
 
 func main() {
-    ListCollection(mongoUrl, "newBlog", "newMgotest")
-    //user := "{\"db\":\"k8srepo\",\"collection\": \"clusters\",\"documents\": [{\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}]}"
-    user2 := "{\"db\": \"k8srepo\",\"collection\": \"clusters\",\"documents\": [{\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}]}"
-    userByte := []byte(user2)
+    // ListCollection(mongoUrl, "newBlog", "newMgotest")
+    _ = FindByStruct(mongoUrl, "newBlog", "newMgotest")
+    user := "{\"db\": \"k8srepo\",\"collection\": \"clusters\",\"documents\": [{\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}]}"
+    userByte := []byte(user)
     Insert(mongoUrl, "newBlog", "newMgotest", userByte)
-    ListCollection(mongoUrl, "newBlog", "newMgotest")
+    _ = FindByStruct(mongoUrl, "newBlog", "newMgotest")
+    //ListCollection(mongoUrl, "newBlog", "newMgotest")
 }
