@@ -87,21 +87,14 @@ func InsertByMap(mongoUrl string, dbName string, collectionName string, user []b
     // fmt.Printf("Document Type:%T\n", documents)
     
     bodyMap := make(map[string]interface{})
-    bodyMap2 := make(map[int]map[string]string)
     err := json.Unmarshal(user, &bodyMap)
     fmt.Println("db: ", bodyMap["db"])
     fmt.Println("collection: ", bodyMap["collection"])
-    documents := bodyMap["documents"]
-    // fmt.Printf(documents)
-    documentsByte, ok := json.Marshal(documents)
-    fmt.Printf("Marshal Error=")
-    fmt.Println(ok)
-    err = json.Unmarshal([]byte(documentsByte), &bodyMap2)
-    fmt.Println(bodyMap2)
-    fmt.Println(bodyMap2[0]["id"])
+    documents := bodyMap["documents"].([]interface{})[0]
+    fmt.Println(bodyMap["documents"].([]interface{})[0])
     //os.Stdout.Write([]byte)bodyMap2)
 
-    err = collection.Insert(documentsByte)
+    err = collection.Insert(documents)
     if err == nil {
         fmt.Println("Successful Insertion")
     } else {
@@ -156,8 +149,11 @@ func main() {
     // ListCollection(mongoUrl, "newBlog", "newMgotest")
     _ = FindByStruct(mongoUrl, "newBlog", "newMgotest")
     user := "{\"db\": \"k8srepo\",\"collection\": \"clusters\",\"documents\": [{\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}]}"
+    // twoUsers := "{\"db\": \"k8srepo\",\"collection\": \"clusters\",\"documents\": [{\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}, {\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}]}"
     userByte := []byte(user)
+    //twoUserByte := []byte(twoUsers)
     InsertByMap(mongoUrl, "newBlog", "newMgotest", userByte)
+    //InsertByMap(mongoUrl, "newBlog", "newMgotest", twoUserByte)
     _ = FindByStruct(mongoUrl, "newBlog", "newMgotest")
     //ListCollection(mongoUrl, "newBlog", "newMgotest")
 }
