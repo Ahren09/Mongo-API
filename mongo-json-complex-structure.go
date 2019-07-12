@@ -2,7 +2,7 @@ package main
 
 import (
 	"gopkg.in/mgo.v2"
-	"fmt"
+    "fmt"
     //"strconv"
     // "encoding/gob"
     // "bytes"
@@ -93,14 +93,15 @@ func InsertByMap(mongoUrl string, dbName string, collectionName string, user []b
     fmt.Println("collection: ", bodyMap["collection"])
     documents := bodyMap["documents"]
     // fmt.Printf(documents)
-    documentsByte, ok := documents.([]byte)
+    documentsByte, ok := json.Marshal(documents)
+    fmt.Printf("Marshal Error=")
     fmt.Println(ok)
     err = json.Unmarshal([]byte(documentsByte), &bodyMap2)
     fmt.Println(bodyMap2)
     fmt.Println(bodyMap2[0]["id"])
-    
+    //os.Stdout.Write([]byte)bodyMap2)
 
-    err = collection.Insert(documents)
+    err = collection.Insert(documentsByte)
     if err == nil {
         fmt.Println("Successful Insertion")
     } else {
