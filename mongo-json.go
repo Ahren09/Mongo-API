@@ -39,6 +39,7 @@ func Insert(mongoUrl string, dbName string, collectionName string, user []byte) 
     } else {
         fmt.Println(err.Error())
     }
+    
 }
 
 

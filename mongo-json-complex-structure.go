@@ -57,18 +57,54 @@ func Insert(mongoUrl string, dbName string, collectionName string, user []byte) 
     fmt.Println("db: ", bodyMap.DB)
     fmt.Println("collection: ", bodyMap.Collection)
     documents := bodyMap.Documents[0]
-    fmt.Println("Documents:", documents)
-    fmt.Println("Id:", bodyMap.Documents[0].Id)
-    fmt.Println("Name:", bodyMap.Documents[0].Name)
+    // fmt.Println("Documents:", documents)
+    // docByte := documents.([]byte)
+    // fmt.Println("Id:", bodyMap.Documents[0].Id)
+    // fmt.Println("Name:", bodyMap.Documents[0].Name)
 
     err = collection.Insert(documents)
-    
-
-
     if err == nil {
         fmt.Println("Successful Insertion")
     } else {
-        fmt.Println(err.Error())
+        fmt.Println("Error = "+err.Error())
+    }
+    fmt.Println("=========== Insert End ============")
+}
+
+func InsertByMap(mongoUrl string, dbName string, collectionName string, user []byte) {
+    _, collection := connect(mongoUrl, dbName, collectionName)
+
+    fmt.Println("=========== Insert by Map ============")
+    // var userMap map[string] interface{}
+    // _ =json.Unmarshal(user, &userMap)
+    // err := collection.Insert(userMap)
+    // fmt.Println("[User]")
+    // fmt.Println("db: ", userMap["db"])
+    // fmt.Println("collection: ", userMap["collection"])
+    // //fmt.Println("Id: ", userMap["id"]) //Output <nil>
+    // documents := userMap["documents"]
+    // fmt.Println("Document:", documents)
+    // fmt.Printf("Document Type:%T\n", documents)
+    
+    bodyMap := make(map[string]interface{})
+    bodyMap2 := make(map[int]map[string]string)
+    err := json.Unmarshal(user, &bodyMap)
+    fmt.Println("db: ", bodyMap["db"])
+    fmt.Println("collection: ", bodyMap["collection"])
+    documents := bodyMap["documents"]
+    // fmt.Printf(documents)
+    documentsByte, ok := documents.([]byte)
+    fmt.Println(ok)
+    err = json.Unmarshal([]byte(documentsByte), &bodyMap2)
+    fmt.Println(bodyMap2)
+    fmt.Println(bodyMap2[0]["id"])
+    
+
+    err = collection.Insert(documents)
+    if err == nil {
+        fmt.Println("Successful Insertion")
+    } else {
+        fmt.Println("Error = "+err.Error())
     }
     fmt.Println("=========== Insert End ============")
 }
@@ -120,7 +156,7 @@ func main() {
     _ = FindByStruct(mongoUrl, "newBlog", "newMgotest")
     user := "{\"db\": \"k8srepo\",\"collection\": \"clusters\",\"documents\": [{\"id\": \"0\",\"name\": \"mycluster2\",\"owner\": \"ykunyk@cn.ibm.com\",\"createdby\": \"ykunyk@cn.ibm.com\"}]}"
     userByte := []byte(user)
-    Insert(mongoUrl, "newBlog", "newMgotest", userByte)
+    InsertByMap(mongoUrl, "newBlog", "newMgotest", userByte)
     _ = FindByStruct(mongoUrl, "newBlog", "newMgotest")
     //ListCollection(mongoUrl, "newBlog", "newMgotest")
 }
